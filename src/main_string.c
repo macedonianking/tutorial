@@ -32,12 +32,12 @@ void main_string_release(struct main_string *ptr)
 	}
 }
 
-void main_string_append(struct main_string *ptr, char *data)
+void main_string_append(struct main_string *ptr, const char *data)
 {
 	main_string_nappend(ptr, data, strlen(data));
 }
 
-void main_string_nappend(struct main_string *ptr, char *data, int n)
+void main_string_nappend(struct main_string *ptr, const char *data, int n)
 {
 	if (ptr->n + n + 1 > ptr->c)
 	{
