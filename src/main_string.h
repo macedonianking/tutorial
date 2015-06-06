@@ -22,6 +22,8 @@ void main_string_release(struct main_string *ptr);
 void main_string_erase(struct main_string *ptr);
 void main_string_append(struct main_string *ptr, const char *data);
 void main_string_nappend(struct main_string *ptr, const char *data, int n);
+void main_string_assign(struct main_string *ptr, const char *data);
+void main_string_nassign(struct main_string *ptr, const char *data, int n);
 char *main_string_new(struct main_string *ptr);
 
 #endif // MAIN_STRING_H

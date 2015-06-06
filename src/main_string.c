@@ -58,6 +58,18 @@ void main_string_erase(struct main_string *ptr)
 	ptr->data[ptr->n] = E_CHAR;
 }
 
+void main_string_assign(struct main_string *ptr, const char *data)
+{
+	main_string_erase(ptr);
+	main_string_append(ptr, data);
+}
+
+void main_string_nassign(struct main_string *ptr, const char *data, int n)
+{
+	main_string_erase(ptr);
+	main_string_nappend(ptr, data, n);
+}
+
 char *main_string_new(struct main_string *ptr)
 {
 	char *p;
