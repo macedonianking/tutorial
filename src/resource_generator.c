@@ -10,373 +10,202 @@
 #include <string.h>
 
 #include "config.h"
+#include "main_string.h"
+#include "tutorial_max_line.h"
+#include "resource_generator.h"
+#include "resource_item_parse.h"
 
-#define ENTITY_SIZE_DEFUALT		100
-#define CATEGORY_SIZE_DEFAULT	20
+#define MAIN_PRINT_BUFFER_SIZE	2048
 
-#define ENTITY_TYPE_NONE		0x0000
-#define ENTITY_TYPE_INT 		0x0001
-#define ENTITY_TYPE_INT_BUFFER	0x0002
+static const char *gResourceTypeNames[] = { "int", "int[]" };
 
-#define TUTORIAL_FILE_BUFFER_SIZE	4096
-
-#define INITIAL_FIND_WORD	0x0000
-#define INITIAL_FIND_SPACE	0x0001
-#define INITIAL_FIND_ENDL	0x0002
-
-#define INITIAL_CONTEXT_TARGET_DATA_TYPE	0x0001
-#define INITIAL_CONTEXT_TARGET_CATEGORY		0x0002
-#define INITIAL_CONTEXT_TARGET_NAME			0x0003
-#define INITIAL_CONTEXT_TARGET_VALUE		0x0004
-
-struct tutorial_resource_entity
+void main_resource_item_initial(struct main_resource_item *ptr)
 {
-	int type;
-	char *name;
-	char *value;
-};
-
-struct tutorial_resource_category
-{
-	char *name;
-	struct tutorial_resource_entity *head;
-	int size;
-	int capacity;
-};
-
-struct tutorial_resource_generator
-{
-	struct tutorial_resource_category *head;
-	int size;
-	int capacity;
-};
-
-struct tutorial_resource_line
-{
-	char *str;
-	int length;
-	int capacity;
-	int curr_find;
-	int curr_seek;
-	int next_find;
-};
-
-struct tutorial_resource_file_buffer
-{
-	char buffer[TUTORIAL_FILE_BUFFER_SIZE];
-	char *s;
-	char *p;
-	FILE *file;
-};
-
-struct tutorial_resource_initial_context
-{
-	struct tutorial_resource_generator *generator;
-	struct tutorial_resource_category *category;
-	struct tutorial_resource_entity entity;
-	int target;
-};
-
-/**
- * 销毁内部成员
- */
-static void tutorial_resource_entity_release(struct tutorial_resource_entity *ptr);
-/**
- * 销毁资源类
- */
-static void tutorial_resource_category_release(struct tutorial_resource_category *ptr);
-/**
- * 
- */
-static char* tutorial_resource_generator_skip_char(char *str, int find);
-
-static int tutorial_resource_line_next(struct tutorial_resource_initial_context *context,
-		struct tutorial_resource_file_buffer *buffer, struct tutorial_resource_line *line);
-
-static void tutorial_resource_initial_context_handle_line(
-		struct tutorial_resource_initial_context *initial_context,
-		struct tutorial_resource_line *line);
-
-/**
- * 
- */
-static int tutorial_resource_file_buffer_next(struct tutorial_resource_file_buffer *buffer);
-
-static struct tutorial_resource_category *tutorial_resource_generator_find_category(
-		struct tutorial_resource_generator *ptr, const char *name);
-static struct tutorial_resource_category *tutorial_resource_generator_add_category(
-		struct tutorial_resource_generator *ptr, const char *name);
-static struct tutorial_resource_category *tutorial_resource_generator_safe_get_category(
-		struct tutorial_resource_generator *ptr, const char *name);
-
-struct tutorial_resource_generator *tutorial_resource_generator_new()
-{
-	struct tutorial_resource_generator *ptr;
-
-	ptr = (struct tutorial_resource_generator*) malloc(sizeof(struct tutorial_resource_generator));
-	ptr->size = 0;
-	ptr->capacity = CATEGORY_SIZE_DEFAULT;
-	ptr->head = (struct tutorial_resource_category*) malloc(
-			sizeof(struct tutorial_resource_category) * ptr->capacity);
-	memset(ptr->head, sizeof(struct tutorial_resource_category) * ptr->capacity, 0);
-
-	return ptr;
+	ptr->category = ptr->name = ptr->value = NULL;
+	ptr->type = RESOURCE_ITEM_TYPE_NONE;
 }
 
-/**
- * 释放所有资源 
- */
-void tutorial_resource_generator_release(struct tutorial_resource_generator* ptr)
+void main_resource_item_release(struct main_resource_item *ptr)
 {
-	if (ptr != NULL)
+	if (ptr->name)
 	{
-		for (int i = 0; i != ptr->size; ++i)
-		{
-			tutorial_resource_category_release(ptr->head + i);
-		}
-		if (ptr->head != NULL)
-		{
-			free(ptr->head);
-			ptr->head = NULL;
-		}
-		ptr->size = ptr->capacity = 0;
-		free(ptr);
+		free(ptr->name);
+		ptr->name = NULL;
 	}
+
+	if (ptr->value)
+	{
+		free(ptr->value);
+		ptr->value = NULL;
+	}
+
+	ptr->category = NULL;
+	ptr->type = RESOURCE_ITEM_TYPE_NONE;
 }
 
-int tutorial_resource_generator_initial(struct tutorial_resource_generator *ptr, FILE *file)
+void main_resource_item_set_name_value(struct main_resource_item *ptr, struct main_string *name,
+		struct main_string *value)
 {
-	struct tutorial_resource_initial_context context;
-	struct tutorial_resource_line line;
-	struct tutorial_resource_file_buffer file_buffe;
-
-	line.curr_find = INITIAL_FIND_ENDL;
-	line.next_find = INITIAL_FIND_WORD;
-	while (tutorial_resource_file_buffer_next(&file_buffe) == 0)
+	if (ptr->name)
 	{
-		tutorial_resource_line_next(&context, &file_buffe, &line);
-		tutorial_resource_initial_context_handle_line(&context, &line);
+		free(ptr->name);
+		ptr->name = NULL;
 	}
+	ptr->name = main_string_new(name);
 
-	return 0;
+	if (ptr->value)
+	{
+		free(ptr->value);
+		ptr->value = NULL;
+	}
+	ptr->value = main_string_new(value);
 }
 
-void tutorial_resource_entity_release(struct tutorial_resource_entity *ptr)
+void main_resource_item_print(struct main_resource_item *ptr, FILE *file,
+		const struct main_resource_print_options *options)
 {
-	if (ptr != NULL)
-	{
-		if (ptr->name != NULL)
-		{
-			free(ptr->name);
-			ptr->name = NULL;
-		}
-		if (ptr->value != NULL)
-		{
-			free(ptr->value);
-			ptr->value = NULL;
-		}
-	}
-}
+	char buffer[MAIN_PRINT_BUFFER_SIZE];
+	int n;
 
-void tutorial_resource_category_release(struct tutorial_resource_category *ptr)
-{
-	if (ptr != NULL)
-	{
-		if (ptr->name != NULL)
-		{
-			free(ptr->name);
-			ptr->name = NULL;
-		}
-
-		for (int i = 0; i != ptr->size; ++i)
-		{
-			tutorial_resource_entity_release(ptr->head + i);
-		}
-		if (ptr->head != NULL)
-		{
-			free(ptr->head);
-			ptr->head = NULL;
-		}
-		ptr->size = 0;
-		ptr->capacity = 0;
-	}
-}
-
-char *tutorial_resource_generator_skip_char(char *str, int find)
-{
-	if (find == INITIAL_FIND_WORD)
-	{
-		while (*str != E_CHAR && *str != ' ' && *str != '\n' && *str != '\t')
-			++str;
-	}
-	else if (find == INITIAL_FIND_SPACE)
-	{
-		while (*str == ' ' || *str == '\t')
-			++str;
-	}
-	else if (find == INITIAL_FIND_ENDL)
-	{
-		while (*str != E_CHAR && *str != '\n')
-			++str;
-	}
+	if (options->is_non_constant_id)
+		n = snprintf(buffer, MAIN_PRINT_BUFFER_SIZE, "public static %s %s = %s;",
+				gResourceTypeNames[ptr->type], ptr->name, ptr->value);
 	else
-	{
-		DCHECK(DCHECK_FAILURE);
-	}
-	return str;
+		n = snprintf(buffer, MAIN_PRINT_BUFFER_SIZE, "public static final %s %s = %s;",
+				gResourceTypeNames[ptr->type], ptr->name, ptr->value);
+	fwrite(buffer, 1, n, file);
 }
 
-int tutorial_resource_file_buffer_next(struct tutorial_resource_file_buffer *ptr)
+void main_resource_category_initial(struct main_resource_category *ptr, int c)
 {
-	return 0;
+	if (c <= 0)
+		c = 512;
+	ptr->c = c;
+	ptr->n = 0;
+	ptr->head = (struct main_resource_item*) malloc(sizeof(struct main_resource_item) * ptr->c);
 }
 
-void tutorial_resource_line_append(struct tutorial_resource_line *ptr, char *s, char *e)
+void main_resource_category_release(struct main_resource_category *ptr)
 {
-}
-
-int tutorial_resource_line_next(struct tutorial_resource_initial_context *context,
-		struct tutorial_resource_file_buffer *buffer, struct tutorial_resource_line *line)
-{
-	char *ptr;
-
-	ptr = buffer->p;
-	if (line->curr_find == INITIAL_FIND_ENDL)
-	{
-		DCHECK(line->next_find == INITIAL_FIND_WORD);
-		while (*ptr != E_CHAR && (*ptr == ' ' || *ptr == '\t' || *ptr == '\n'))
-			++ptr;
-		if (*ptr != E_CHAR && *ptr != ' ' && *ptr != '\t' && *ptr != '\n')
-		{
-			line->curr_find = INITIAL_FIND_WORD;
-			line->curr_seek = INITIAL_FIND_WORD;
-			line->next_find = INITIAL_FIND_SPACE;
-			buffer->s = ptr;
-		}
-		buffer->p = ptr;
-	}
-	else if (line->curr_find == INITIAL_FIND_SPACE)
-	{
-		DCHECK(line->next_find == INITIAL_FIND_WORD);
-		while (*ptr != E_CHAR && *ptr == ' ' && *ptr == '\t' && *ptr == '\n')
-			++ptr;
-		if (*ptr != E_CHAR && *ptr != ' ' && *ptr != '\t' && *ptr != '\n')
-		{
-			line->curr_find = INITIAL_FIND_WORD;
-			line->curr_seek = INITIAL_FIND_WORD;
-			if (context->target == INITIAL_CONTEXT_TARGET_VALUE)
-				line->next_find = INITIAL_FIND_ENDL;
-			else
-				line->next_find = INITIAL_FIND_SPACE;
-			buffer->s = ptr;
-		}
-	}
-
-	if (line->curr_find == INITIAL_FIND_WORD)
-	{
-		buffer->p = tutorial_resource_generator_skip_char(buffer->s, line->next_find);
-		tutorial_resource_line_append(line, buffer->s, buffer->p);
-		ptr = buffer->p;
-		if (*ptr == E_CHAR)
-		{
-			line->curr_seek = INITIAL_FIND_WORD; //
-		}
-		else
-		{
-			if (line->next_find == INITIAL_FIND_ENDL && *ptr != '\n')
-			{
-				// We meet an ERROR.
-			}
-			if (line->next_find == INITIAL_FIND_SPACE && *ptr != ' ' && *ptr != '\t')
-			{
-				// We meet an ERROR.
-			}
-			line->curr_seek = INITIAL_FIND_SPACE; // 查找到解决
-		}
-	}
-	return 0;
-}
-
-void tutorial_resource_initial_context_handle_line(
-		struct tutorial_resource_initial_context *context, struct tutorial_resource_line *line)
-{
-	if (line->curr_find != INITIAL_FIND_WORD || line->curr_find != INITIAL_FIND_SPACE)
-	{
+	if (!ptr)
 		return;
-	}
 
-	if (context->target == INITIAL_CONTEXT_TARGET_DATA_TYPE)
-	{
-		int type = ENTITY_TYPE_NONE;
-		if (strcmp("int", line->str) == 0)
-			type = ENTITY_TYPE_INT;
-		else if (strcmp("int[]", line->str) == 0)
-			type = ENTITY_TYPE_INT_BUFFER;
-		if (type == ENTITY_TYPE_NONE)
-			exit(-1);
-		context->entity.type = type;
-	}
-	else if (context->target == INITIAL_CONTEXT_TARGET_CATEGORY)
-	{
-		if (context->category == NULL || strcmp(context->category->name, line->str) != 0)
-			context->category = tutorial_resource_generator_safe_get_category(context->generator,
-					line->str);
-	}
-	else if (context->target == INITIAL_CONTEXT_TARGET_NAME)
-	{
-		context->entity.name = (char*) malloc((line->length + 1) * sizeof(char));
-		strcpy(context->entity.name, line->str);
-	}
-	else if (context->target == INITIAL_CONTEXT_TARGET_VALUE)
-	{
-		context->entity.value = (char*) malloc((line->length + 1) * sizeof(char));
-		strcpy(context->entity.value, line->str);
-	}
-	line->curr_find = INITIAL_FIND_SPACE;
-	line->curr_seek = INITIAL_FIND_SPACE;
-	line->next_find = INITIAL_FIND_WORD;
+	for (int i = 0; i < ptr->n; ++i)
+		main_resource_item_release(ptr->head + i);
+	free(ptr->head);
+	ptr->head = NULL;
+	ptr->n = ptr->c = 0;
+	free(ptr->name);
 }
 
-struct tutorial_resource_category *tutorial_resource_generator_add_category(
-		struct tutorial_resource_generator *ptr, const char *name)
+struct main_resource_item *main_resource_category_append(struct main_resource_category *ptr)
 {
-	struct tutorial_resource_category *q;
-
-	if (ptr->size >= ptr->capacity)
+	if (ptr->n == ptr->c)
 	{
-		ptr->capacity *= 2;
-		ptr->head = (struct tutorial_resource_category*) realloc(ptr->head,
-				ptr->capacity * sizeof(struct tutorial_resource_category));
+		ptr->c *= 2;
+		ptr->head = (struct main_resource_item*) realloc(ptr->head,
+				ptr->c * sizeof(struct main_resource_item));
 	}
-	q = &ptr->head[ptr->size++];
-	q->name = (char*) malloc(strlen(name) + 1);
-	strcpy(q->name, name);
-	return q;
+	return &ptr->head[ptr->n++];
 }
 
-struct tutorial_resource_category *tutorial_resource_generator_find_category(
-		struct tutorial_resource_generator *ptr, const char *name)
+void main_resource_table_initial(struct main_resource_table *table, int c)
 {
-	struct tutorial_resource_category *iter;
-	struct tutorial_resource_category *end;
+	if (c <= 0)
+		c = 20;
+	table->c = c;
+	table->n = 0;
+	table->head = (struct main_resource_category*) malloc(
+			table->c * sizeof(struct main_resource_category));
+}
 
-	iter = ptr->head;
-	end = ptr->head + ptr->size;
-	while (iter != end)
+void main_resource_table_release(struct main_resource_table *table)
+{
+	for (int i = 0; i < table->n; ++i)
+		main_resource_category_release(table->head + i);
+	free(table->head);
+	table->c = table->n = 0;
+}
+
+struct main_resource_category *main_resource_table_append(struct main_resource_table *table)
+{
+	if (table->n >= table->c)
 	{
-		if (strcmp(iter->name, name) == 0)
+		table->c *= 2;
+		table->head = (struct main_resource_category*) realloc(table->head,
+				table->c * sizeof(struct main_resource_category));
+	}
+	return &table->head[table->n++];
+}
+
+struct main_resource_category *main_resource_table_search(struct main_resource_table *table,
+		const char *name)
+{
+	struct main_resource_category *r;
+
+	r = NULL;
+	for (int i = 0; i < table->n; ++i)
+	{
+		if (strcmp(name, table->head[i].name) == 0)
+		{
+			r = table->head + i;
 			break;
-		++iter;
+		}
 	}
-	return iter != end ? iter : NULL;
+	return r;
 }
 
-struct tutorial_resource_category *tutorial_resource_generator_safe_get_category(
-		struct tutorial_resource_generator *ptr, const char *name)
+int main_resource_table_init_from_file(struct main_resource_table *table, FILE *file)
 {
-	struct tutorial_resource_category *iter;
+	struct main_line_split split;
+	const char *line;
+	int n;
+	int dataType;
+	int r;
+	struct main_string typeName;
+	struct main_string itemName;
+	struct main_string itemValue;
+	struct main_resource_category *category;
+	struct main_resource_item *item;
 
-	if ((iter = tutorial_resource_generator_find_category(ptr, name)) == NULL)
-		iter = tutorial_resource_generator_add_category(ptr, name);
-	return iter;
+	r = 0;
+	main_string_initial(&typeName, MAIN_STRING_DEFAULT_CAPACITY);
+	main_string_initial(&itemName, MAIN_STRING_DEFAULT_CAPACITY);
+	main_string_initial(&itemValue, MAIN_STRING_DEFAULT_CAPACITY);
+	main_line_split_initial(&split, file, MAIN_PRINT_BUFFER_SIZE);
+	while ((line = main_line_split_next_line(&split, &n)) != NULL)
+	{
+		if (main_resource_parse_item(line, &dataType, &typeName, &itemName, &itemValue) != 0)
+		{
+			r = 1;
+			break;
+		}
+
+		if (category != NULL || strcmp(category->name, typeName.data) != 0)
+		{
+			category = main_resource_table_search(table, typeName.data);
+			if (category == NULL)
+			{
+				category = main_resource_table_append(table);
+				main_resource_category_initial(category, 1024);
+				category->name = main_string_new(&typeName);
+			}
+		}
+
+		/**
+		 * 添加成员 
+		 */
+		item = main_resource_category_append(category);
+		main_resource_item_initial(item);
+		item->type = dataType;
+		item->category = category->name;
+		main_resource_item_set_name_value(item, &itemName, &itemValue);
+	}
+	main_line_split_release(&split);
+	main_string_release(&typeName);
+	main_string_release(&itemName);
+	main_string_release(&itemValue);
+
+	return r;
 }
+

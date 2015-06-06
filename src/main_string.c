@@ -57,3 +57,12 @@ void main_string_erase(struct main_string *ptr)
 	ptr->n = 0;
 	ptr->data[ptr->n] = E_CHAR;
 }
+
+char *main_string_new(struct main_string *ptr)
+{
+	char *p;
+
+	p = (char*) malloc(sizeof(char) * (ptr->n + 1));
+	strcpy(p, ptr->data);
+	return p;
+}
