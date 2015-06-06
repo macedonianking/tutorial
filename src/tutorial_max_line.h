@@ -7,6 +7,8 @@
 #ifndef TUTORIAL_MAX_LINE_H
 #define TUTORIAL_MAX_LINE_H
 
+#include "main_string.h"
+
 #define MAIN_FILE_STATUS_NONE				0x0000
 #define MAIN_FILE_STATUS_DOCUMENT_ENTER		0x0001
 #define MAIN_FILE_STATUS_DOCUMENT_LEAVE		0X0002
@@ -23,7 +25,15 @@ struct main_file_buffer
 	int status;
 };
 
-struct main_line_split;
+struct main_line_split
+{
+	FILE *file;
+	char *head;
+	int n;
+	int c;
+	int seek;
+	struct main_string text;
+};
 
 struct main_file_buffer_parser
 {

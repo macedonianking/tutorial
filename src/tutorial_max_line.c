@@ -12,16 +12,6 @@
 #define LINE_SPLIT_STATUS_LINE				0x0001
 #define LINE_SPLIT_STATUS_STOP				0x0002
 
-struct main_line_split
-{
-	FILE *file;
-	char *head;
-	int n;
-	int c;
-	int seek;
-	struct main_string text;
-};
-
 struct main_file_buffer *main_file_buffer_open(FILE *file, int capacity)
 {
 	struct main_file_buffer *buffer;
@@ -92,6 +82,7 @@ void main_line_split_initial(struct main_line_split *ptr, FILE *file, int c)
 	ptr->c = c;
 	ptr->head = (char *) malloc(sizeof(char) * ptr->c);
 	ptr->n = ptr->seek = 0;
+	ptr->file = file;
 	main_string_initial(&ptr->text, MAIN_FILE_BUFFER_DEFAULT_CAPACITY);
 }
 
@@ -101,6 +92,7 @@ void main_line_split_release(struct main_line_split *ptr)
 	{
 		free(ptr->head);
 		ptr->c = ptr->seek = ptr->n = 0;
+		ptr->file = NULL;
 		main_string_release(&ptr->text);
 	}
 }

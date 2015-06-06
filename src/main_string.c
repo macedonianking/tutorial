@@ -19,6 +19,7 @@ void main_string_initial(struct main_string *ptr, int capacity)
 	ptr->c = capacity;
 	ptr->data = malloc(sizeof(char) * ptr->c);
 	ptr->n = 0;
+	ptr->data[ptr->n] = E_CHAR;
 }
 
 void main_string_release(struct main_string *ptr)
@@ -48,7 +49,7 @@ void main_string_nappend(struct main_string *ptr, char *data, int n)
 
 	while (n-- > 0)
 		ptr->data[ptr->n++] = *data++;
-	ptr->data[n] = E_CHAR;
+	ptr->data[ptr->n] = E_CHAR;
 }
 
 void main_string_erase(struct main_string *ptr)
