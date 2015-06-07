@@ -18,7 +18,7 @@
 
 int main(int argc, char **argv)
 {
-	main_line_test();
+	main_resource_table_test();
 	printf("%s:Main Finish!!!\n", argv[0]);
 	return EXIT_SUCCESS;
 }

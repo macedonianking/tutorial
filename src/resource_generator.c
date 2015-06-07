@@ -169,6 +169,7 @@ int main_resource_table_init_from_file(struct main_resource_table *table, FILE *
 	struct main_resource_item *item;
 
 	r = 0;
+	category = NULL;
 	main_string_initial(&typeName, MAIN_STRING_DEFAULT_CAPACITY);
 	main_string_initial(&itemName, MAIN_STRING_DEFAULT_CAPACITY);
 	main_string_initial(&itemValue, MAIN_STRING_DEFAULT_CAPACITY);
@@ -181,7 +182,7 @@ int main_resource_table_init_from_file(struct main_resource_table *table, FILE *
 			break;
 		}
 
-		if (category != NULL || strcmp(category->name, typeName.data) != 0)
+		if (category == NULL || strcmp(category->name, typeName.data) != 0)
 		{
 			category = main_resource_table_search(table, typeName.data);
 			if (category == NULL)
