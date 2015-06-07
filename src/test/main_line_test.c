@@ -41,18 +41,36 @@ void main_line_test()
 void main_resource_table_test()
 {
 	struct main_resource_table table;
+	struct main_resource_print_options options;
+
 	FILE *file;
+	FILE *outFile;
 	int r;
 
+	file = NULL;
+	outFile = NULL;
 	if ((file = fopen(FILE_NAME_A_TXT, "r")) == NULL)
 		return;
 
+	if ((outFile = fopen("D:\\workspace_cpp\\Tutorial\\R.java", "w")) == NULL)
+	{
+		fclose(file);
+		return;
+	}
+
+	options.is_non_constant_id = 0;
+	options.package_name = "com.android.browser";
+	options.step = 0;
+
 	main_resource_table_initial(&table, -1);
 	r = main_resource_table_init_from_file(&table, file);
-	printf("main_resource_table_test r=%d\n", r);
+	if (r == 0)
+		main_resource_table_print_java(&table, outFile, &options);
 	main_resource_table_release(&table);
 
 	fclose(file);
+	fclose(outFile);
 	file = NULL;
+	outFile = NULL;
 
 }

@@ -8,6 +8,7 @@
 #ifndef TUTORIAL_PRINT_UTIL_H
 #define TUTORIAL_PRINT_UTIL_H
 
-void tutorial_print_n_char(int n, char c);
+void main_print_nchar(int n, char c);
+void main_fprint_nchar(FILE *file, int n, int c);
 
 #endif // TUTORIAL_PRINT_UTIL_H

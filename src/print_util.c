@@ -10,10 +10,16 @@
 
 #include "print_util.h"
 
-void tutorial_print_n_char(int n, char c)
+void main_print_nchar(int n, char c)
 {
 	while (n-- != 0)
 	{
 		putchar(c);
 	}
+}
+
+void main_fprint_nchar(FILE *file, int n, int c)
+{
+	while (n-- != 0)
+		fputc(c, file);
 }

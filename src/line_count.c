@@ -73,16 +73,16 @@ void tutorial_print_horizontal_histogram(struct tutorial_line_count *buf)
 	for (int i = 0; i < 10; ++i)
 	{
 		printf("%6d:", i);
-		tutorial_print_n_char(buf->ndigits[i], '*');
+		main_print_nchar(buf->ndigits[i], '*');
 		putchar('\n');
 	}
 
 	printf("whites:");
-	tutorial_print_n_char(buf->nwhites, '*');
+	main_print_nchar(buf->nwhites, '*');
 	putchar('\n');
 
 	printf("others:");
-	tutorial_print_n_char(buf->nothers, '*');
+	main_print_nchar(buf->nothers, '*');
 	putchar('\n');
 }
 

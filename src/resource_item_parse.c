@@ -32,7 +32,7 @@ int main_resource_parse_item(const char *str, int *dataType, struct main_string 
 
 	if (strncmp("int", s, str - s) == 0)
 		*dataType = RESOURCE_ITEM_TYPE_INT;
-	else if (strncmp("int", s, str - s) == 0)
+	else if (strncmp("int[]", s, str - s) == 0)
 		*dataType = RESOURCE_ITEM_TYPE_INT_ARRAY;
 	else
 		return -1;
