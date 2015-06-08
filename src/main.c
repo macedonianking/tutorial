@@ -22,6 +22,6 @@
 
 int main(int argc, char **argv)
 {
-	main_options_call_help(stdout);
+	main_options_test();
 	return EXIT_SUCCESS;
 }

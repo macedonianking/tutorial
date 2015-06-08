@@ -23,5 +23,6 @@ void main_options_call_help(FILE *file);
  * 运行参数解析
  */
 int main_options_initialize_from_arguments(struct main_options *options, int argc, char **argv);
+int main_options_check_statements(struct main_options *options);
 
 #endif // MAIN_OPTIONS_H

@@ -12,6 +12,7 @@
 #include "main_options.h"
 #include "config.h"
 #include "main_vector.h"
+#include "file_util.h"
 
 #define APP_NAME	"Tutorial"
 
@@ -24,7 +25,7 @@ static int main_options_check_package_and_resource_files(struct main_options *op
 void main_options_initial(struct main_options *options)
 {
 	options->n = 0;
-	options->is_non_constant_id = 1;
+	options->is_non_constant_id = 0;
 	options->packages = options->resource_r_files = NULL;
 	main_string_initial(&options->gen_dir, -1);
 	main_string_initial(&options->r_file, -1);
@@ -48,6 +49,7 @@ void main_options_prepare_size(struct main_options *options, int n)
 {
 	DCHECK(!options->n && !options->packages && !options->resource_r_files);
 	DCHECK(n > 0);
+	options->n = n;
 	options->packages = (struct main_string*) malloc(sizeof(struct main_string) * n);
 	options->resource_r_files = (struct main_string*) malloc(sizeof(struct main_string) * n);
 	for (int i = 0; i != n; ++i)
@@ -74,7 +76,7 @@ int main_options_initialize_from_arguments(struct main_options *options, int arg
 	struct main_string extra_packages;
 	struct main_string r_resource_files;
 
-	i = 1;
+	i = 0;
 	r = 0;
 	main_string_initial(&extra_packages, -1);
 	main_string_initial(&r_resource_files, -1);
@@ -86,6 +88,7 @@ int main_options_initialize_from_arguments(struct main_options *options, int arg
 			if (i < argc)
 			{
 				main_string_assign(&options->gen_dir, argv[i]);
+				++i;
 			}
 			else
 			{
@@ -100,6 +103,7 @@ int main_options_initialize_from_arguments(struct main_options *options, int arg
 			if (i < argc)
 			{
 				main_string_assign(&options->r_file, argv[i]);
+				++i;
 			}
 			else
 			{
@@ -114,6 +118,7 @@ int main_options_initialize_from_arguments(struct main_options *options, int arg
 			if (i < argc)
 			{
 				main_string_assign(&extra_packages, argv[i]);
+				++i;
 			}
 			else
 			{
@@ -127,7 +132,8 @@ int main_options_initialize_from_arguments(struct main_options *options, int arg
 			++i;
 			if (i < argc)
 			{
-				main_string_assign(&extra_packages, argv[i]);
+				main_string_assign(&r_resource_files, argv[i]);
+				++i;
 			}
 			else
 			{
@@ -249,4 +255,50 @@ int main_options_check_package_and_resource_files(struct main_options *options,
 	main_vector_release(&re_vector);
 
 	return r;
+}
+
+int main_options_check_statements(struct main_options *options)
+{
+	if (options->gen_dir.n <= 0)
+	{
+		fprintf(stdout, "gen directory not set\n");
+		return -1;
+	}
+	if (options->n <= 0)
+	{
+		fprintf(stdout, "extra packages and resource-r-files not set\n");
+		return -1;
+	}
+	if (options->r_file.n <= 0)
+	{
+		fprintf(stdout, "--R-file is not set\n");
+		return -1;
+	}
+	if (!main_file_is_exists(options->r_file.data))
+	{
+		fprintf(stdout, "--R-file '%s' is not existed\n", options->r_file.data);
+		return -1;
+	}
+	for (int i = 0; i < options->n; ++i)
+	{
+		if (options->packages[i].n <= 0)
+		{
+			fprintf(stdout, "illegal package name\n");
+			return -1;
+		}
+
+		if (options->resource_r_files[i].n <= 0)
+		{
+			fprintf(stdout, "illegal resource-r-file\n");
+			return -1;
+		}
+
+		if (!main_file_is_exists(options->resource_r_files[i].data))
+		{
+			fprintf(stdout, "resource-r-file does not exists:%s\n",
+					options->resource_r_files[i].data);
+			return -1;
+		}
+	}
+	return 0;
 }

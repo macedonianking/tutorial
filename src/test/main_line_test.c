@@ -14,6 +14,8 @@
 #include "../main_string.h"
 #include "../tutorial_max_line.h"
 #include "../resource_generator.h"
+#include "../main_vector.h"
+#include "../main_options.h"
 
 #define FILE_NAME_A_TXT	"D:\\workspace_cpp\\Tutorial\\a.txt"
 
@@ -72,5 +74,48 @@ void main_resource_table_test()
 	fclose(outFile);
 	file = NULL;
 	outFile = NULL;
+}
 
+static void main_options_test_item(const char **buf, int n)
+{
+	struct main_vector v;
+	struct main_string text;
+	struct main_options options;
+	int r;
+
+	main_options_initial(&options);
+	main_vector_initial(&v, 100);
+	for (int i = 0; i < n; ++i)
+	{
+		main_string_initial(&text, -1);
+		main_string_assign(&text, buf[i]);
+		main_vector_append(&v, text.data);
+		text.c = 0;
+		text.n = 0;
+		text.data = NULL;
+	}
+
+	r = main_options_initialize_from_arguments(&options, v.n, (char**) v.head);
+	if (!r)
+		r = main_options_check_statements(&options);
+
+	for (int i = 0; i < v.n; ++i)
+	{
+		free(v.head[i]);
+		v.head[i] = NULL;
+	}
+
+	fprintf(stdout, "options statements:%d\n", r);
+
+	main_vector_release(&v);
+	main_options_release(&options);
+}
+
+void main_options_test()
+{
+	const char* argv[] = { "-J", "gen", "--extra-packages",
+			"com.android.browser:com.android.button", "--r-resource-files", "src\\main.c:a.txt",
+			"--R-file", "src\\tutorial_math.h" };
+
+	main_options_test_item(argv, sizeof(argv) / sizeof(argv[0]));
 }
