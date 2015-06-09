@@ -55,7 +55,6 @@ void main_resource_item_print(struct main_resource_item *ptr, FILE *file);
 void main_resource_category_initial(struct main_resource_category *ptr, int c);
 void main_resource_category_release(struct main_resource_category *ptr);
 struct main_resource_item *main_resource_category_append(struct main_resource_category *ptr);
-void main_resource_category_reset(struct main_resource_category *ptr);
 void main_resource_category_print(struct main_resource_category *ptr, FILE *file);
 void main_resource_category_print_java(struct main_resource_category *ptr, FILE *file,
 		struct main_resource_print_options *options);

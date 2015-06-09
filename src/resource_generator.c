@@ -121,15 +121,6 @@ struct main_resource_item *main_resource_category_append(struct main_resource_ca
 	return &ptr->head[ptr->n++];
 }
 
-void main_resource_category_reset(struct main_resource_category *ptr)
-{
-	for (int i = 0; i < ptr->n; ++i)
-		main_resource_item_release(ptr->head + i);
-	ptr->n = 0;
-	free(ptr->name);
-	ptr->name = NULL;
-}
-
 void main_resource_category_print(struct main_resource_category *ptr, FILE *file)
 {
 	for (int i = 0; i < ptr->n; ++i)
@@ -204,7 +195,7 @@ struct main_resource_category *main_resource_table_search(struct main_resource_t
 void main_resource_table_reset(struct main_resource_table *table)
 {
 	for (int i = 0; i < table->n; ++i)
-		main_resource_category_reset(table->head + i);
+		main_resource_category_release(table->head + i);
 	table->n = 0;
 }
 
