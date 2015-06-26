@@ -18,16 +18,14 @@ static void main_file_check_create_dir(char *path);
 /**
  * 判断是否存在
  */
-int main_file_is_exists(const char *path)
-{
+int main_file_is_exists(const char *path) {
 	return access(path, F_OK) == 0;
 }
 
 /**
  * 创建文件夹
  */
-int main_file_create_directory(const char *path)
-{
+int main_file_create_directory(const char *path) {
 	struct main_string text;
 	int r;
 
@@ -38,8 +36,7 @@ int main_file_create_directory(const char *path)
 	if (main_file_is_exists(text.data))
 		r = -1;
 
-	if (r == 0)
-	{
+	if (r == 0) {
 		main_file_check_create_dir(text.data);
 		r = main_file_is_exists(text.data);
 	}
@@ -48,23 +45,20 @@ int main_file_create_directory(const char *path)
 	return r;
 }
 
-void main_file_check_create_dir(char *path)
-{
+void main_file_check_create_dir(char *path) {
 	char *p;
 	char c;
 	int finished;
 
 	p = path;
 	finished = 0;
-	while (!finished)
-	{
+	while (!finished) {
 		while (*p != E_CHAR && *p != '\\' && *p != '/')
 			++p;
 
 		c = *p;
 		*p = E_CHAR;
-		if (main_file_is_exists(path))
-		{
+		if (main_file_is_exists(path)) {
 			*p = c;
 			if (*p == E_CHAR)
 				finished = 1;
@@ -74,16 +68,13 @@ void main_file_check_create_dir(char *path)
 		}
 
 		mkdir(path);
-		if (main_file_is_exists(path))
-		{
+		if (main_file_is_exists(path)) {
 			*p = c;
 			if (*p == E_CHAR)
 				finished = 1;
 			else
 				++p;
-		}
-		else
-		{
+		} else {
 			*p = c;
 			finished = 1;
 		}

@@ -10,7 +10,8 @@
 
 struct main_string;
 
-int main_resource_parse_item(const char *str, int *dataType, struct main_string *typeName,
-		struct main_string *itemName, struct main_string *itemValue);
+int main_resource_parse_item(const char *str, int *dataType,
+		struct main_string *typeName, struct main_string *itemName,
+		struct main_string *itemValue);
 
 #endif // MAIN_RESOURCE_ITEM_PARSE_H

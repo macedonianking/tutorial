@@ -10,5 +10,5 @@
 
 struct main_options;
 
-void main_resource_generator_execute(struct main_options *options);
+int main_resource_generator_execute(struct main_options *options);
 #endif // MAIN_RESOURCE_GENERATOR_H

@@ -10,8 +10,4 @@
 
 void main_line_test();
 
-void main_resource_table_test();
-
-void main_options_test();
-
 #endif // MAIN_LINE_TEST_H

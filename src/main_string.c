@@ -12,8 +12,7 @@
 #include "main_string.h"
 #include "config.h"
 
-void main_string_initial(struct main_string *ptr, int capacity)
-{
+void main_string_initial(struct main_string *ptr, int capacity) {
 	if (capacity <= 0)
 		capacity = 1024;
 	ptr->c = capacity;
@@ -22,25 +21,20 @@ void main_string_initial(struct main_string *ptr, int capacity)
 	ptr->data[ptr->n] = E_CHAR;
 }
 
-void main_string_release(struct main_string *ptr)
-{
-	if (ptr != NULL)
-	{
+void main_string_release(struct main_string *ptr) {
+	if (ptr != NULL) {
 		free(ptr->data);
 		ptr->data = NULL;
 		ptr->c = ptr->n = 0;
 	}
 }
 
-void main_string_append(struct main_string *ptr, const char *data)
-{
+void main_string_append(struct main_string *ptr, const char *data) {
 	main_string_nappend(ptr, data, strlen(data));
 }
 
-void main_string_nappend(struct main_string *ptr, const char *data, int n)
-{
-	if (ptr->n + n + 1 > ptr->c)
-	{
+void main_string_nappend(struct main_string *ptr, const char *data, int n) {
+	if (ptr->n + n + 1 > ptr->c) {
 		ptr->c <<= 1;
 		if (ptr->n + n + 1 > ptr->c)
 			ptr->c = ptr->n + n + 1;
@@ -52,29 +46,36 @@ void main_string_nappend(struct main_string *ptr, const char *data, int n)
 	ptr->data[ptr->n] = E_CHAR;
 }
 
-void main_string_erase(struct main_string *ptr)
-{
+void main_string_erase(struct main_string *ptr) {
 	ptr->n = 0;
 	ptr->data[ptr->n] = E_CHAR;
 }
 
-void main_string_assign(struct main_string *ptr, const char *data)
-{
+void main_string_assign(struct main_string *ptr, const char *data) {
 	main_string_erase(ptr);
 	main_string_append(ptr, data);
 }
 
-void main_string_nassign(struct main_string *ptr, const char *data, int n)
-{
+void main_string_nassign(struct main_string *ptr, const char *data, int n) {
 	main_string_erase(ptr);
 	main_string_nappend(ptr, data, n);
 }
 
-char *main_string_new(struct main_string *ptr)
-{
+char *main_string_new(struct main_string *ptr) {
 	char *p;
 
 	p = (char*) malloc(sizeof(char) * (ptr->n + 1));
 	strcpy(p, ptr->data);
 	return p;
+}
+
+char *main_string_new_string(const char *str) {
+	char *dst;
+	int n;
+
+	n = strlen(str);
+	dst = (char*) malloc(sizeof(char) * (n + 1));
+	memcpy(dst, str, n + 1);
+
+	return dst;
 }

@@ -11,8 +11,7 @@
 #include "config.h"
 #include "tutorial_math.h"
 
-int tutorial_power(int base, int n)
-{
+int tutorial_power(int base, int n) {
 	int r;
 
 	r = 1;
