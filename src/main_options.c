@@ -102,8 +102,8 @@ int main_options_initialize_from_arguments(struct main_options *options, int arg
 			++i;
 			while (i < argc && *argv[i] != '-')
 			{
-				main_vector_vappend(&options->v_resource_r_files, argv[i],
-				NULL);
+				main_vector_vappend(&options->v_resource_r_files, argv[i], NULL);
+				++i;
 			}
 		}
 		else
@@ -169,7 +169,7 @@ int main_options_get_r_file_path(main_string *dst, main_options *options, int i)
 	char *ptr;
 
 	main_string_reset(dst);
-	main_string_append(dst, options->gen_dir);
+	main_string_append(dst, options->gen_dir.data);
 	main_string_append(dst, MAIN_FILE_SEP_WINS_STRING);
 	ptr = (char*) options->v_packages.head[i];
 	strcpy(buffer, ptr);

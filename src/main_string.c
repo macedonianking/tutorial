@@ -10,13 +10,28 @@
 #include <string.h>
 
 #include "main_string.h"
+#include "main_math.h"
 #include "config.h"
 
 #define MAIN_STRING_DEFAULT_CAPACITY 	512
 
+/**
+ * 检查设置缓冲区的大小
+ */
+static void main_string_check_capacity(main_string *ptr, int c)
+{
+	if (c < ptr->c)
+	{
+		return;
+	}
+
+	ptr->c = MAX(c, 2 * ptr->c);
+	ptr->data = (char*) realloc(ptr->data, sizeof(char) * ptr->c);
+}
+
 void main_string_initial(main_string *ptr)
 {
-	main_string_ninitial(MAIN_STRING_DEFAULT_CAPACITY);
+	main_string_ninitial(ptr, MAIN_STRING_DEFAULT_CAPACITY);
 }
 
 void main_string_ninitial(struct main_string *ptr, int c)
@@ -44,15 +59,8 @@ void main_string_append(struct main_string *ptr, const char *data)
 
 void main_string_nappend(struct main_string *ptr, const char *data, int n)
 {
-	if (ptr->n + n + 1 > ptr->c)
-	{
-		ptr->c <<= 1;
-		if (ptr->n + n + 1 > ptr->c)
-			ptr->c = ptr->n + n + 1;
-		ptr->data = (char*) realloc(ptr->data, ptr->c * sizeof(char));
-	}
-
-	while (n-- > 0)
+	main_string_check_capacity(ptr, ptr->n + n + 1);
+	while (n-- > 0 && *data != E_CHAR)
 		ptr->data[ptr->n++] = *data++;
 	ptr->data[ptr->n] = E_CHAR;
 }

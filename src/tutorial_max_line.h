@@ -7,6 +7,7 @@
 #ifndef TUTORIAL_MAX_LINE_H
 #define TUTORIAL_MAX_LINE_H
 
+#include <stdio.h>
 #include "main_string.h"
 
 #define MAIN_FILE_STATUS_NONE				0x0000

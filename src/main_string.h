@@ -8,8 +8,6 @@
 #ifndef MAIN_STRING_H
 #define MAIN_STRING_H
 
-#define MAIN_STRING_DEFAULT_CAPACITY 	1024
-
 typedef struct main_string
 {
 	char *data;

@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include "main_string.h"
 #include "main_file.h"
 #include "main_options.h"
 #include "resource_generator.h"
@@ -60,6 +61,7 @@ int main_resource_generator_handle_item(main_resource_table *table, main_options
 {
 	int r;
 	main_resource_table dstTable;
+	main_resource_print_options print_options;
 	main_string path;
 	FILE *file;
 
@@ -75,8 +77,32 @@ int main_resource_generator_handle_item(main_resource_table *table, main_options
 	{
 		r = main_resource_table_replace(&dstTable, table);
 	}
+
+	file = NULL;
 	if (r == 0)
 	{
+		main_string_initial(&path);
+		main_options_get_r_file_path(&path, options, i);
+		r = main_file_check_create_parent_dir(path.data);
+		if (r == 0)
+		{
+			file = fopen(path.data, "w");
+		}
+		main_string_release(&path);
+	}
+
+	if (file == NULL)
+	{
+		r = -1;
+	}
+	else
+	{
+		print_options.is_non_constant_id = options->is_non_constant_id;
+		print_options.package_name = (const char*) options->v_packages.head[i];
+		print_options.step = 0;
+		main_resource_table_print_java(&dstTable, file, &print_options);
+		fclose(file);
+		file = NULL;
 	}
 
 	main_resource_table_release(&dstTable);

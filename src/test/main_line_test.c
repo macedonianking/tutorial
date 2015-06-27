@@ -18,8 +18,8 @@ void main_line_test()
 
 	main_vector_initial(&arguments);
 	main_vector_vappend(&arguments, "", "-J", "build/gen", "--R-file",
-			"D:\\workspace\\MainBuild\\build\\R.txt", "--extra-packages", "com.oppo.build.library",
-			"--r-resource-files", "D:\\workspace\\MainLibrary\\build\\R.txt", NULL);
+			"D:\\workspace\\MainBuild\\build\\R.txt", "-P", "com.oppo.build.library", "-S",
+			"D:\\workspace\\MainLibrary\\build\\R.txt", NULL);
 	do_execute(arguments.n, (char**) arguments.head);
 	main_vector_release(&arguments);
 }

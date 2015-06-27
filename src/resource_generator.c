@@ -215,7 +215,7 @@ void main_resource_table_print(struct main_resource_table *table, FILE *file)
 		main_resource_category_print(&table->head[i], file);
 }
 
-void main_resource_table_print_java(struct main_resource_table *table, FILE *file,
+void main_resource_table_print_java(main_resource_table *table, FILE *file,
 		struct main_resource_print_options *options)
 {
 	fprintf(file, "/* AUTO-GENERATED FILE.  DO NOT MODIFY.\n"
@@ -253,9 +253,9 @@ int main_resource_table_init_from_file(struct main_resource_table *table, FILE *
 
 	r = 0;
 	category = NULL;
-	main_string_ninitial(&typeName, MAIN_STRING_DEFAULT_CAPACITY);
-	main_string_ninitial(&itemName, MAIN_STRING_DEFAULT_CAPACITY);
-	main_string_ninitial(&itemValue, MAIN_STRING_DEFAULT_CAPACITY);
+	main_string_initial(&typeName);
+	main_string_initial(&itemName);
+	main_string_initial(&itemValue);
 	main_line_split_initial(&split, file, MAIN_PRINT_BUFFER_SIZE);
 	nLine = 0;
 	while ((line = main_line_split_next_line(&split, &n)) != NULL)

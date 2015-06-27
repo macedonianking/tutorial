@@ -76,8 +76,7 @@ void main_file_buffer_parse(struct main_file_buffer *buffer, struct main_file_bu
 void main_line_split_initial(struct main_line_split *ptr, FILE *file, int c)
 {
 	c = c < MAIN_FILE_BUFFER_DEFAULT_CAPACITY ?
-	MAIN_FILE_BUFFER_DEFAULT_CAPACITY :
-												c;
+	MAIN_FILE_BUFFER_DEFAULT_CAPACITY : c;
 	ptr->c = c;
 	ptr->head = (char *) malloc(sizeof(char) * ptr->c);
 	ptr->n = ptr->seek = 0;
