@@ -27,6 +27,10 @@ int main_options_initialize_from_arguments(main_options *options, int argc,
 int main_options_check_statements(main_options *options);
 
 /**
+ * 获取文件路径
+ */
+int main_options_get_r_file_path(main_string *dst, main_options *options, int i);
+/**
  * 实际执行
  */
 int do_execute(int argc, char **argv);

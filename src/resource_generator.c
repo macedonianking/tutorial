@@ -79,6 +79,13 @@ void main_resource_item_print(struct main_resource_item *ptr, FILE *file) {
 	fwrite(ptr->value, 1, strlen(ptr->value), file);
 }
 
+void main_resource_item_set_value(main_resource_item *ptr, const char *value) {
+	if (ptr->value) {
+		free(ptr->value);
+	}
+	ptr->value = main_string_new_string(value);
+}
+
 void main_resource_category_initial(struct main_resource_category *ptr, int c) {
 	if (c <= 0)
 		c = 512;
@@ -260,3 +267,56 @@ int main_resource_table_init_from_file(struct main_resource_table *table,
 	return r;
 }
 
+static main_resource_item *main_resource_category_search(
+		main_resource_category *cat, const char *item_name, int item_type) {
+	main_resource_item *ptr;
+	int n;
+
+	ptr = cat->head;
+	n = cat->n;
+	while (n-- > 0) {
+		if (ptr->type == item_type && strcmp(ptr->name, item_name) == 0) {
+			return ptr;
+		}
+		++ptr;
+	}
+
+	return NULL;
+}
+
+static int main_resource_category_replace(main_resource_category *cat,
+		main_resource_table *src) {
+	main_resource_category *dst_cat;
+	main_resource_item *end, *ptr, *dst_item;
+
+	dst_cat = main_resource_table_search(src, cat->name);
+	if (dst_cat == NULL) {
+		return -1;
+	}
+
+	end = cat->head + cat->n;
+	ptr = cat->head;
+	while (ptr < end) {
+		dst_item = main_resource_category_search(dst_cat, ptr->name, ptr->type);
+		if (dst_item == NULL) {
+			return -1;
+		}
+		main_resource_item_set_value(ptr, dst_item->value);
+		++ptr;
+	}
+
+	return 0;
+}
+/**
+ * 内容替换
+ */
+int main_resource_table_replace(main_resource_table *dst,
+		main_resource_table *src) {
+	for (int i = 0; i < dst->n; ++i) {
+		if (main_resource_category_replace(dst->head + i, src) != 0) {
+			return -1;
+		}
+	}
+
+	return 0;
+}

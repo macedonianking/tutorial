@@ -7,20 +7,19 @@
 
 #include <stdio.h>
 
-#include "file_util.h"
+#include "main_file.h"
 #include "main_options.h"
 #include "resource_generator.h"
 
-static int main_resource_generator_handle_item(
-		struct main_resource_table *table, struct main_options *options, int i);
+static int main_resource_generator_handle_item(main_resource_table *table,
+		main_options *options, int i);
 
 int main_resource_generator_execute(main_options *options) {
 	main_resource_table table;
 	FILE *iFile;
 	int r;
 
-	if (!main_file_is_exists(options->gen_dir.data)
-			&& !main_file_create_directory(options->gen_dir.data)) {
+	if (main_file_check_create_parent_dir(options->gen_dir.data) != 0) {
 		fprintf(stdout, "create directory: %s failed\n", options->gen_dir.data);
 		return -1;
 	}
@@ -53,6 +52,7 @@ int main_resource_generator_handle_item(main_resource_table *table,
 		main_options *options, int i) {
 	int r;
 	main_resource_table dstTable;
+	main_string path;
 	FILE *file;
 
 	r = 0;
@@ -63,7 +63,9 @@ int main_resource_generator_handle_item(main_resource_table *table,
 	r = main_resource_table_init_from_file(&dstTable, file);
 	fclose(file);
 	if (r == 0) {
-
+		r = main_resource_table_replace(&dstTable, table);
+	}
+	if (r == 0) {
 	}
 
 	main_resource_table_release(&dstTable);

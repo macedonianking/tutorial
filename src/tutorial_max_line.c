@@ -92,7 +92,7 @@ const char *main_line_split_next_line(struct main_line_split *ptr, int *n) {
 	int start;
 
 	status = LINE_SPLIT_STATUS_NONE;
-	main_string_erase(&ptr->text);
+	main_string_reset(&ptr->text);
 	while (1) {
 		if (ptr->seek == ptr->n) {
 			ptr->n = fread(ptr->head, 1, ptr->c, ptr->file);

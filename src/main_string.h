@@ -19,7 +19,7 @@ typedef struct main_string {
 void main_string_initial(struct main_string *ptr, int capacity);
 void main_string_release(struct main_string *ptr);
 
-void main_string_erase(struct main_string *ptr);
+void main_string_reset(struct main_string *ptr);
 void main_string_append(struct main_string *ptr, const char *data);
 void main_string_nappend(struct main_string *ptr, const char *data, int n);
 void main_string_assign(struct main_string *ptr, const char *data);

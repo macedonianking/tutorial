@@ -8,11 +8,10 @@
 #include "main_options.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "config.h"
-#include "file_util.h"
+#include "main_file.h"
 #include "main_resource_generator.h"
 
 #define APP_NAME	"Tutorial"
@@ -111,7 +110,7 @@ int main_options_check_statements(struct main_options *options) {
 	if (options->r_file.n <= 0) {
 		return -1;
 	}
-	if (!main_file_is_exists(options->r_file.data)) {
+	if (main_file_is_file(options->r_file.data) != 0) {
 		return -1;
 	}
 
@@ -124,11 +123,38 @@ int main_options_check_statements(struct main_options *options) {
 		/**
 		 * 检查文件都存在
 		 */
-		if (main_file_is_exists((char*) options->v_resource_r_files.head[i])
+		if (main_file_is_file((char*) options->v_resource_r_files.head[i])
 				!= 0) {
 			return -1;
 		}
 	}
+	return 0;
+}
+
+/**
+ * 获取文件的路径
+ */
+int main_options_get_r_file_path(main_string *dst, main_options *options, int i) {
+	char buffer[MAIN_FILE_MAX_PATH];
+	char *ptr;
+
+	main_string_reset(dst);
+	main_string_append(dst, options->gen_dir);
+	main_string_append(dst, MAIN_FILE_SEP_WINS_STRING);
+	ptr = (char*) options->v_packages.head[i];
+	strcpy(buffer, ptr);
+
+	ptr = buffer;
+	while (*ptr != E_CHAR) {
+		if (*ptr == '.') {
+			*ptr = MAIN_FILE_SEP_WINS_CHAR;
+		}
+		++ptr;
+	}
+	main_string_append(dst, buffer);
+	main_string_append(dst, MAIN_FILE_SEP_WINS_STRING);
+	main_string_append(dst, "R.java");
+
 	return 0;
 }
 
