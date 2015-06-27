@@ -14,27 +14,31 @@
 
 #include "main_string.h"
 
-typedef struct main_resource_item {
+typedef struct main_resource_item
+{
 	int type;
 	char *category;
 	char *name;
 	char *value;
 } main_resource_item;
 
-typedef struct main_resource_category {
+typedef struct main_resource_category
+{
 	struct main_resource_item *head;
 	char *name;
 	int n;
 	int c;
 } main_resource_category;
 
-typedef struct main_resource_table {
+typedef struct main_resource_table
+{
 	struct main_resource_category *head;
 	int n;
 	int c;
 } main_resource_table;
 
-typedef struct main_resource_print_options {
+typedef struct main_resource_print_options
+{
 	int is_non_constant_id;
 	const char *package_name;
 	int step;
@@ -42,8 +46,8 @@ typedef struct main_resource_print_options {
 
 void main_resource_item_initial(main_resource_item *ptr);
 void main_resource_item_release(main_resource_item *ptr);
-void main_resource_item_set_name_value(main_resource_item *ptr,
-		main_string *name, main_string *value);
+void main_resource_item_set_name_value(main_resource_item *ptr, main_string *name,
+		main_string *value);
 void main_resource_item_print_java(main_resource_item *ptr, FILE *file,
 		main_resource_print_options *options);
 void main_resource_item_print(main_resource_item *ptr, FILE *file);
@@ -59,8 +63,7 @@ void main_resource_category_print_java(main_resource_category *ptr, FILE *file,
 void main_resource_table_initial(main_resource_table *table, int c);
 void main_resource_table_release(main_resource_table *table);
 main_resource_category *main_resource_table_append(main_resource_table *table);
-main_resource_category *main_resource_table_search(main_resource_table *table,
-		const char *name);
+main_resource_category *main_resource_table_search(main_resource_table *table, const char *name);
 void main_resource_table_reset(main_resource_table *table);
 void main_resource_table_print(main_resource_table *table, FILE *file);
 void main_resource_table_print_java(main_resource_table *table, FILE *file,
@@ -70,6 +73,5 @@ int main_resource_table_init_from_file(main_resource_table *table, FILE *file);
 /**
  * 内容替换
  */
-int main_resource_table_replace(main_resource_table *dst,
-		main_resource_table *src);
+int main_resource_table_replace(main_resource_table *dst, main_resource_table *src);
 #endif // MAIN_RESOURCE_GENERATOR_H

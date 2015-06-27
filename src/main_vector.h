@@ -8,7 +8,8 @@
 #ifndef MAIN_VECTOR_H
 #define MAIN_VECTOR_H
 
-typedef struct main_vector {
+typedef struct main_vector
+{
 	void **head;
 	int n;
 	int c;

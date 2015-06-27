@@ -15,7 +15,8 @@
 #define MAIN_FILE_STATUS_LINE_ENTER			0x0002
 #define MAIN_FILE_STATUS_LINE_LEAVE			0x0003
 
-struct main_file_buffer {
+struct main_file_buffer
+{
 	char *head;
 	int n;
 	int s;
@@ -24,7 +25,8 @@ struct main_file_buffer {
 	int status;
 };
 
-struct main_line_split {
+struct main_line_split
+{
 	FILE *file;
 	char *head;
 	int n;
@@ -33,7 +35,8 @@ struct main_line_split {
 	struct main_string text;
 };
 
-struct main_file_buffer_parser {
+struct main_file_buffer_parser
+{
 	void (*file_buffer_enter)(void *data);
 	void (*file_buffer_leave)(void *data);
 	void (*file_buffer_line_enter)(char *head, int n, void *data);
@@ -48,8 +51,7 @@ void main_file_buffer_close(struct main_file_buffer *file_buffer);
 void main_file_buffer_parse(struct main_file_buffer *file_buffer,
 		struct main_file_buffer_parser *parser, void *data);
 
-void main_line_split_initial(struct main_line_split *ptr, FILE *file,
-		int capactiy);
+void main_line_split_initial(struct main_line_split *ptr, FILE *file, int capactiy);
 void main_line_split_release(struct main_line_split *ptr);
 const char* main_line_split_next_line(struct main_line_split *ptr, int *n);
 #endif // TUTORIAL_MAX_LINE_H

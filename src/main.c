@@ -13,7 +13,8 @@
 #include "main_options.h"
 #include "test/main_line_test.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	main_line_test();
 	return EXIT_SUCCESS;
 }

@@ -4,7 +4,8 @@
 #include "main_string.h"
 #include "main_vector.h"
 
-typedef struct main_options {
+typedef struct main_options
+{
 	main_string *packages;
 	main_string *resource_r_files;
 	main_vector v_packages;
@@ -22,8 +23,7 @@ void main_options_call_help();
 /**
  * 运行参数解析
  */
-int main_options_initialize_from_arguments(main_options *options, int argc,
-		char **argv);
+int main_options_initialize_from_arguments(main_options *options, int argc, char **argv);
 int main_options_check_statements(main_options *options);
 
 /**

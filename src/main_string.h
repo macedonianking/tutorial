@@ -10,13 +10,15 @@
 
 #define MAIN_STRING_DEFAULT_CAPACITY 	1024
 
-typedef struct main_string {
+typedef struct main_string
+{
 	char *data;
 	int n;
 	int c;
 } main_string;
 
-void main_string_initial(struct main_string *ptr, int capacity);
+void main_string_initial(main_string *ptr);
+void main_string_ninitial(struct main_string *ptr, int capacity);
 void main_string_release(struct main_string *ptr);
 
 void main_string_reset(struct main_string *ptr);

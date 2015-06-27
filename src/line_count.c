@@ -13,7 +13,8 @@
 #include "print_util.h"
 #include "line_count.h"
 
-struct tutorial_line_count {
+struct tutorial_line_count
+{
 	int ndigits[10];
 	int nwhites;
 	int nothers;
@@ -22,11 +23,13 @@ struct tutorial_line_count {
 static void tutorial_count_file(FILE *file, struct tutorial_line_count *buf);
 static void tutorial_print_horizontal_histogram(struct tutorial_line_count *buf);
 
-void tutorial_line_count_main() {
+void tutorial_line_count_main()
+{
 	struct tutorial_line_count buf;
 	FILE *file;
 
-	if ((file = fopen("..\\src\\line_count.c", "r")) == NULL) {
+	if ((file = fopen("..\\src\\line_count.c", "r")) == NULL)
+	{
 		return;
 	}
 
@@ -44,22 +47,31 @@ void tutorial_line_count_main() {
 	tutorial_print_horizontal_histogram(&buf);
 }
 
-void tutorial_count_file(FILE *file, struct tutorial_line_count *buf) {
+void tutorial_count_file(FILE *file, struct tutorial_line_count *buf)
+{
 	int c;
 
-	while ((c = fgetc(file)) != EOF) {
-		if (c >= '0' && c <= '9') {
+	while ((c = fgetc(file)) != EOF)
+	{
+		if (c >= '0' && c <= '9')
+		{
 			++buf->ndigits[c - '0'];
-		} else if (c == ' ' || c == '\t' || c == '\n') {
+		}
+		else if (c == ' ' || c == '\t' || c == '\n')
+		{
 			++buf->nwhites;
-		} else {
+		}
+		else
+		{
 			++buf->nothers;
 		}
 	}
 }
 
-void tutorial_print_horizontal_histogram(struct tutorial_line_count *buf) {
-	for (int i = 0; i < 10; ++i) {
+void tutorial_print_horizontal_histogram(struct tutorial_line_count *buf)
+{
+	for (int i = 0; i < 10; ++i)
+	{
 		printf("%6d:", i);
 		main_print_nchar(buf->ndigits[i], '*');
 		putchar('\n');
