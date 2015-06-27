@@ -129,6 +129,22 @@ struct main_resource_item *main_resource_category_append(struct main_resource_ca
 	return &ptr->head[ptr->n++];
 }
 
+/**
+ * 删除一个子成员
+ */
+void main_resource_category_erase(main_resource_category *ptr, int i)
+{
+	main_resource_item *src, *dst, *end;
+
+	src = ptr->head + i;
+	dst = src + 1;
+	end = ptr->head + ptr->n;
+	main_resource_item_release(&ptr->head[i]);
+	while (dst < end)
+		*src++ = *dst++;
+	--ptr->n;
+}
+
 void main_resource_category_print(struct main_resource_category *ptr, FILE *file)
 {
 	for (int i = 0; i < ptr->n; ++i)
@@ -316,28 +332,37 @@ static main_resource_item *main_resource_category_search(main_resource_category 
 	return NULL;
 }
 
-static int main_resource_category_replace(main_resource_category *cat, main_resource_table *src)
+static int main_resource_category_replace(main_resource_category *cat, main_resource_table *src,
+		main_options *options, int i)
 {
 	main_resource_category *dst_cat;
-	main_resource_item *end, *ptr, *dst_item;
+	main_resource_item *ptr, *dst_item;
+	char *src_file;
+	int j;
 
+	src_file = (char*) options->v_resource_r_files.head[i];
 	dst_cat = main_resource_table_search(src, cat->name);
 	if (dst_cat == NULL)
 	{
 		return -1;
 	}
 
-	end = cat->head + cat->n;
-	ptr = cat->head;
-	while (ptr < end)
+	j = 0;
+	while (j < cat->n)
 	{
+		ptr = cat->head + j;
 		dst_item = main_resource_category_search(dst_cat, ptr->name, ptr->type);
 		if (dst_item == NULL)
 		{
-			return -1;
+			fprintf(stdout, "[WARNING]: Can't find resource id '%s' in '%s' for file '%s'\n",
+					ptr->name, options->r_file.data, src_file);
+			main_resource_category_erase(cat, j);
 		}
-		main_resource_item_set_value(ptr, dst_item->value);
-		++ptr;
+		else
+		{
+			main_resource_item_set_value(ptr, dst_item->value);
+			++j;
+		}
 	}
 
 	return 0;
@@ -345,11 +370,12 @@ static int main_resource_category_replace(main_resource_category *cat, main_reso
 /**
  * 内容替换
  */
-int main_resource_table_replace(main_resource_table *dst, main_resource_table *src)
+int main_resource_table_replace(main_resource_table *dst, main_resource_table *src,
+		main_options *options, int i)
 {
 	for (int i = 0; i < dst->n; ++i)
 	{
-		if (main_resource_category_replace(dst->head + i, src) != 0)
+		if (main_resource_category_replace(dst->head + i, src, options, i) != 0)
 		{
 			return -1;
 		}

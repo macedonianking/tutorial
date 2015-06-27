@@ -18,18 +18,18 @@ int main_file_is_directory(const char *str)
 	int r;
 	DIR *dir;
 
-	r = access(str, F_OK);
-	if (r == 0)
+	r = 0;
+	if (access(str, F_OK) == 0)
 	{
 		dir = opendir(str);
 		if (dir != NULL)
-		{
 			closedir(dir);
-		}
 		else
-		{
 			r = -1;
-		}
+	}
+	else
+	{
+		r = -1;
 	}
 
 	return r;
@@ -40,7 +40,7 @@ int main_file_is_file(const char *str)
 	int r;
 
 	r = -1;
-	if (access(str, F_OK) && main_file_is_directory(str) != 0)
+	if (access(str, F_OK) == 0 && main_file_is_directory(str) != 0)
 	{
 		r = 0;
 	}

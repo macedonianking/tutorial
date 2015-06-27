@@ -60,7 +60,7 @@ int main_resource_generator_execute(main_options *options)
 int main_resource_generator_handle_item(main_resource_table *table, main_options *options, int i)
 {
 	int r;
-	main_resource_table dstTable;
+	main_resource_table src_table;
 	main_resource_print_options print_options;
 	main_string path;
 	FILE *file;
@@ -70,12 +70,12 @@ int main_resource_generator_handle_item(main_resource_table *table, main_options
 	{
 		return r;
 	}
-	main_resource_table_initial(&dstTable, -1);
-	r = main_resource_table_init_from_file(&dstTable, file);
+	main_resource_table_initial(&src_table, -1);
+	r = main_resource_table_init_from_file(&src_table, file);
 	fclose(file);
 	if (r == 0)
 	{
-		r = main_resource_table_replace(&dstTable, table);
+		r = main_resource_table_replace(&src_table, table, options, i);
 	}
 
 	file = NULL;
@@ -100,11 +100,11 @@ int main_resource_generator_handle_item(main_resource_table *table, main_options
 		print_options.is_non_constant_id = options->is_non_constant_id;
 		print_options.package_name = (const char*) options->v_packages.head[i];
 		print_options.step = 0;
-		main_resource_table_print_java(&dstTable, file, &print_options);
+		main_resource_table_print_java(&src_table, file, &print_options);
 		fclose(file);
 		file = NULL;
 	}
 
-	main_resource_table_release(&dstTable);
+	main_resource_table_release(&src_table);
 	return r;
 }

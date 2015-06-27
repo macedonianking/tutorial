@@ -15,6 +15,5 @@
 
 int main(int argc, char **argv)
 {
-	main_line_test();
-	return EXIT_SUCCESS;
+	return do_execute(argc, argv);
 }

@@ -36,16 +36,13 @@ void main_options_release(struct main_options *options)
 void main_options_call_help()
 {
 	fprintf(stdout, "aaptr Android Package Resource Assist Tool\n\n");
-	fprintf(stdout, "%s -J gen_dir --R-file rfile -P packages... -R R-files\n"
-			"    --resource-r-files rfiles\n",
-	APP_NAME);
+	fprintf(stdout, "%s -J gen_dir --R-file rfile -P packages... -R R-files...\n"
+			"    [--non-constant-id]", APP_NAME);
 	fprintf(stdout, "    --R-file rfile [--non-constant-id]\n");
 	fprintf(stdout, "    -J generated directory\n");
 	fprintf(stdout, "    -P package names\n");
 	fprintf(stdout, "    -R resource R.txt files\n");
-	fprintf(stdout, "    --extra-packages: ':' separated\n");
-	fprintf(stdout, "    --resource-r-files: ':' separacted\n");
-	fprintf(stdout, "    --non-constant-id: generate non constant R.java file\n");
+	fprintf(stdout, "    --non-constant-id generate non constant R.java file\n");
 }
 
 int main_options_initialize_from_arguments(struct main_options *options, int argc, char **argv)
@@ -97,7 +94,7 @@ int main_options_initialize_from_arguments(struct main_options *options, int arg
 				++i;
 			}
 		}
-		else if (strcmp("-S", argv[i]) == 0)
+		else if (strcmp("-R", argv[i]) == 0)
 		{
 			++i;
 			while (i < argc && *argv[i] != '-')
@@ -202,7 +199,8 @@ int do_execute(int argc, char **argv)
 	{
 		r = main_options_check_statements(&options);
 	}
-	else
+
+	if (r != 0)
 	{
 		main_options_call_help();
 	}
