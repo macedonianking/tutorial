@@ -333,35 +333,36 @@ static main_resource_item *main_resource_category_search(main_resource_category 
 }
 
 static int main_resource_category_replace(main_resource_category *cat, main_resource_table *src,
-		main_options *options, int i)
+		main_options *options, int position)
 {
 	main_resource_category *dst_cat;
 	main_resource_item *ptr, *dst_item;
 	char *src_file;
-	int j;
+	int i;
 
-	src_file = (char*) options->v_resource_r_files.head[i];
+	src_file = (char*) options->v_resource_r_files.head[position];
 	dst_cat = main_resource_table_search(src, cat->name);
 	if (dst_cat == NULL)
 	{
 		return -1;
 	}
 
-	j = 0;
-	while (j < cat->n)
+	i = 0;
+	while (i < cat->n)
 	{
-		ptr = cat->head + j;
+		ptr = cat->head + i;
 		dst_item = main_resource_category_search(dst_cat, ptr->name, ptr->type);
 		if (dst_item == NULL)
 		{
 			fprintf(stdout, "[WARNING]: Can't find resource id '%s' in '%s' for file '%s'\n",
 					ptr->name, options->r_file.data, src_file);
-			main_resource_category_erase(cat, j);
+			fflush(stdout);
+			main_resource_category_erase(cat, i);
 		}
 		else
 		{
 			main_resource_item_set_value(ptr, dst_item->value);
-			++j;
+			++i;
 		}
 	}
 
@@ -371,11 +372,11 @@ static int main_resource_category_replace(main_resource_category *cat, main_reso
  * 内容替换
  */
 int main_resource_table_replace(main_resource_table *dst, main_resource_table *src,
-		main_options *options, int i)
+		main_options *options, int position)
 {
 	for (int i = 0; i < dst->n; ++i)
 	{
-		if (main_resource_category_replace(dst->head + i, src, options, i) != 0)
+		if (main_resource_category_replace(dst->head + i, src, options, position) != 0)
 		{
 			return -1;
 		}
