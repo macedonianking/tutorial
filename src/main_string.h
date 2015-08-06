@@ -16,16 +16,16 @@ typedef struct main_string
 } main_string;
 
 void main_string_initial(main_string *ptr);
-void main_string_ninitial(struct main_string *ptr, int capacity);
-void main_string_release(struct main_string *ptr);
+void main_string_ninitial(main_string *ptr, int capacity);
+void main_string_release(main_string *ptr);
 
-void main_string_reset(struct main_string *ptr);
-void main_string_append(struct main_string *ptr, const char *data);
-void main_string_nappend(struct main_string *ptr, const char *data, int n);
-void main_string_assign(struct main_string *ptr, const char *data);
-void main_string_nassign(struct main_string *ptr, const char *data, int n);
+void main_string_reset(main_string *ptr);
+void main_string_append(main_string *ptr, const char *data);
+void main_string_nappend(main_string *ptr, const char *data, int n);
+void main_string_assign(main_string *ptr, const char *data);
+void main_string_nassign(main_string *ptr, const char *data, int n);
 
-char *main_string_new(struct main_string *ptr);
+char *main_string_new(main_string *ptr);
 
 char *main_string_new_string(const char *str);
 
