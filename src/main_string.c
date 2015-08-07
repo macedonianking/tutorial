@@ -18,7 +18,7 @@
 /**
  * 检查设置缓冲区的大小
  */
-static void main_string_check_capacity(main_string *ptr, int c)
+static void mainStringCheckCapacity(main_string *ptr, int c)
 {
 	if (c < ptr->c)
 	{
@@ -29,12 +29,12 @@ static void main_string_check_capacity(main_string *ptr, int c)
 	ptr->data = (char*) realloc(ptr->data, sizeof(char) * ptr->c);
 }
 
-void main_string_initial(main_string *ptr)
+void mainStringInitial(main_string *ptr)
 {
-	main_string_ninitial(ptr, MAIN_STRING_DEFAULT_CAPACITY);
+	mainStringNinitial(ptr, MAIN_STRING_DEFAULT_CAPACITY);
 }
 
-void main_string_ninitial(struct main_string *ptr, int c)
+void mainStringNinitial(struct main_string *ptr, int c)
 {
 	ptr->c = c > 0 ? c : MAIN_STRING_DEFAULT_CAPACITY;
 	ptr->data = malloc(sizeof(char) * ptr->c);
@@ -42,7 +42,7 @@ void main_string_ninitial(struct main_string *ptr, int c)
 	ptr->data[ptr->n] = E_CHAR;
 }
 
-void main_string_release(struct main_string *ptr)
+void mainStringRelease(struct main_string *ptr)
 {
 	if (ptr != NULL)
 	{
@@ -52,38 +52,38 @@ void main_string_release(struct main_string *ptr)
 	}
 }
 
-void main_string_append(struct main_string *ptr, const char *data)
+void mainStringAppend(struct main_string *ptr, const char *data)
 {
-	main_string_nappend(ptr, data, strlen(data));
+	mainStringNappend(ptr, data, strlen(data));
 }
 
-void main_string_nappend(struct main_string *ptr, const char *data, int n)
+void mainStringNappend(struct main_string *ptr, const char *data, int n)
 {
-	main_string_check_capacity(ptr, ptr->n + n + 1);
+	mainStringCheckCapacity(ptr, ptr->n + n + 1);
 	while (n-- > 0 && *data != E_CHAR)
 		ptr->data[ptr->n++] = *data++;
 	ptr->data[ptr->n] = E_CHAR;
 }
 
-void main_string_reset(struct main_string *ptr)
+void mainStringReset(struct main_string *ptr)
 {
 	ptr->n = 0;
 	ptr->data[ptr->n] = E_CHAR;
 }
 
-void main_string_assign(struct main_string *ptr, const char *data)
+void mainStringAssign(struct main_string *ptr, const char *data)
 {
-	main_string_reset(ptr);
-	main_string_append(ptr, data);
+	mainStringReset(ptr);
+	mainStringAppend(ptr, data);
 }
 
-void main_string_nassign(struct main_string *ptr, const char *data, int n)
+void mainStringNAssign(struct main_string *ptr, const char *data, int n)
 {
-	main_string_reset(ptr);
-	main_string_nappend(ptr, data, n);
+	mainStringReset(ptr);
+	mainStringNappend(ptr, data, n);
 }
 
-char *main_string_new(struct main_string *ptr)
+char *mainStringNewString(struct main_string *ptr)
 {
 	char *p;
 
@@ -92,7 +92,7 @@ char *main_string_new(struct main_string *ptr)
 	return p;
 }
 
-char *main_string_new_string(const char *str)
+char *mainStringCloneString(const char *str)
 {
 	char *dst;
 	int n;
@@ -102,4 +102,17 @@ char *main_string_new_string(const char *str)
 	memcpy(dst, str, n + 1);
 
 	return dst;
+}
+
+main_string *mainStringNew()
+{
+	main_string *ptr = (main_string*) malloc(sizeof(main_string));
+	mainStringInitial(ptr);
+	return ptr;
+}
+
+void mainStringDelete(main_string *ptr)
+{
+	mainStringRelease(ptr);
+	free(ptr);
 }

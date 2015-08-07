@@ -11,9 +11,9 @@
 #include <stdlib.h>
 
 #include "main_options.h"
-#include "test/main_line_test.h"
+#include "main_line_test.h"
 
 int main(int argc, char **argv)
 {
-	return do_execute(argc, argv);
+	return doExecute(argc, argv);
 }

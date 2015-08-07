@@ -15,18 +15,20 @@ typedef struct main_string
 	int c;
 } main_string;
 
-void main_string_initial(main_string *ptr);
-void main_string_ninitial(main_string *ptr, int capacity);
-void main_string_release(main_string *ptr);
+void mainStringInitial(main_string *ptr);
+void mainStringNinitial(main_string *ptr, int capacity);
+void mainStringRelease(main_string *ptr);
 
-void main_string_reset(main_string *ptr);
-void main_string_append(main_string *ptr, const char *data);
-void main_string_nappend(main_string *ptr, const char *data, int n);
-void main_string_assign(main_string *ptr, const char *data);
-void main_string_nassign(main_string *ptr, const char *data, int n);
+main_string *mainStringNew();
+void mainStringDelete(main_string *ptr);
 
-char *main_string_new(main_string *ptr);
+void mainStringReset(main_string *ptr);
+void mainStringAppend(main_string *ptr, const char *data);
+void mainStringNappend(main_string *ptr, const char *data, int n);
+void mainStringAssign(main_string *ptr, const char *data);
+void mainStringNAssign(main_string *ptr, const char *data, int n);
 
-char *main_string_new_string(const char *str);
+char *mainStringNewString(main_string *ptr);
+char *mainStringCloneString(const char *str);
 
 #endif // MAIN_STRING_H

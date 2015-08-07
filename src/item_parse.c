@@ -11,22 +11,21 @@
 
 #include "config.h"
 #include "main_string.h"
-#include "resource_generator.h"
+#include "resource_table.h"
 
 #define MAIN_STRING_SEEK_WORD	0x0001
 #define MAIN_STRING_SEEK_ENDL	0x0002
 #define MAIN_STRING_SEEK_NONE	0x0003
 
-static const char *main_resource_string_seek(const char *str, int seek);
-static const char *main_resource_string_seek_range(const char *str, const char **start, int seekFm,
-		int seekTo);
+static const char *resourceStringSeek(const char *str, int seek);
+static const char *resourceStringSeekRange(const char *str, const char **start, int seekFm, int seekTo);
 
-int main_resource_parse_item(const char *str, int *dataType, struct main_string *typeName,
-		struct main_string *itemName, struct main_string *itemValue)
+int mainResourceParseItem(const char *str, int *dataType, main_string *typeName,
+		main_string *itemName, main_string *itemValue)
 {
 	const char *s;
 
-	str = main_resource_string_seek_range(str, &s, MAIN_STRING_SEEK_WORD,
+	str = resourceStringSeekRange(str, &s, MAIN_STRING_SEEK_WORD,
 	MAIN_STRING_SEEK_NONE);
 	if (str == NULL)
 		return -1;
@@ -41,59 +40,54 @@ int main_resource_parse_item(const char *str, int *dataType, struct main_string 
 	/**
 	 * 解析类型名字
 	 */
-	str = main_resource_string_seek_range(str, &s, MAIN_STRING_SEEK_WORD,
+	str = resourceStringSeekRange(str, &s, MAIN_STRING_SEEK_WORD,
 	MAIN_STRING_SEEK_NONE);
 	if (str == NULL)
 		return -1;
-	main_string_nassign(typeName, s, str - s);
+	mainStringNAssign(typeName, s, str - s);
 
 	/**
 	 * 解析资源名字
 	 */
-	str = main_resource_string_seek_range(str, &s, MAIN_STRING_SEEK_WORD,
+	str = resourceStringSeekRange(str, &s, MAIN_STRING_SEEK_WORD,
 	MAIN_STRING_SEEK_NONE);
 	if (str == NULL)
 		return -1;
-	main_string_nassign(itemName, s, str - s);
+	mainStringNAssign(itemName, s, str - s);
 
 	/**
 	 * 解析资源名称
 	 */
-	str = main_resource_string_seek_range(str, &s, MAIN_STRING_SEEK_WORD,
+	str = resourceStringSeekRange(str, &s, MAIN_STRING_SEEK_WORD,
 	MAIN_STRING_SEEK_ENDL);
 	if (str == NULL)
 		return -1;
-	main_string_nassign(itemValue, s, str - s);
+	mainStringNAssign(itemValue, s, str - s);
 	return 0;
 }
 
-const char *main_resource_string_seek(const char *str, int seek)
+const char *resourceStringSeek(const char *str, int seek)
 {
-	if (seek == MAIN_STRING_SEEK_WORD)
-	{
+	if (seek == MAIN_STRING_SEEK_WORD) {
 		while (*str != E_CHAR && (*str == '\n' || *str == ' ' || *str == '\t'))
 			++str;
-	}
-	else if (seek == MAIN_STRING_SEEK_ENDL)
-	{
+	} else if (seek == MAIN_STRING_SEEK_ENDL) {
 		while (*str != E_CHAR && *str != '\n')
 			++str;
-	}
-	else
-	{
+	} else {
 		while (*str != E_CHAR && *str != '\n' && *str != ' ' && *str != '\t')
 			++str;
 	}
 	return str;
 }
 
-const char *main_resource_string_seek_range(const char *str, const char **start, int seekFm,
+const char *resourceStringSeekRange(const char *str, const char **start, int seekFm,
 		int seekTo)
 {
-	str = main_resource_string_seek(str, seekFm);
+	str = resourceStringSeek(str, seekFm);
 	if (*str == E_CHAR)
 		return NULL;
 
 	*start = str;
-	return main_resource_string_seek(str, seekTo);
+	return resourceStringSeek(str, seekTo);
 }

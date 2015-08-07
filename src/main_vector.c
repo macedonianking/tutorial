@@ -67,7 +67,7 @@ void main_vector_vappend(main_vector *ptr, ...)
 	va_start(_vaList, ptr);
 	while ((iter = va_arg(_vaList, const char*)) != NULL)
 	{
-		main_vector_append(ptr, main_string_new_string(iter));
+		main_vector_append(ptr, mainStringCloneString(iter));
 	}
 	va_end(_vaList);
 }

@@ -13,144 +13,103 @@
 #include "main_file.h"
 #include "main_string.h"
 
-int main_file_is_directory(const char *str)
+int mainFileIsDirectory(const char *str)
 {
 	int r;
 	DIR *dir;
 
-	r = 0;
-	if (access(str, F_OK) == 0)
-	{
+	r = -1;
+	if (access(str, F_OK) == 0) {
 		dir = opendir(str);
-		if (dir != NULL)
+		if (dir != NULL) {
 			closedir(dir);
-		else
-			r = -1;
-	}
-	else
-	{
-		r = -1;
-	}
+			r = 0;
+		}
+	} 
 
 	return r;
 }
 
-int main_file_is_file(const char *str)
+int mainFileIsFile(const char *str)
 {
 	int r;
 
 	r = -1;
-	if (access(str, F_OK) == 0 && main_file_is_directory(str) != 0)
-	{
+	if (access(str, F_OK) == 0 && mainFileIsDirectory(str) != 0)
 		r = 0;
-	}
 	return r;
+}
+
+static int mainFileParentDirectoryPosition(char *path, int n)
+{
+	while (--n >= 0 && path[n] != FILE_SEP_UNIX && path[n] != FILE_SEP_WINS)
+		;
+
+	if (n < 0)
+		n = -1;
+	return n;
+}
+
+static int mainFileMkdirsImpl(char *path, int n)
+{
+	int i;
+	int r;
+
+	if (mainFileIsDirectory(path) == 0)
+		return 1;
+
+	i = mainFileParentDirectoryPosition(path, n);
+	if (i >= 0)  {
+		int old_c = path[i];
+		path[i] = '\0';
+		mainFileMkdirsImpl(path, i);
+		path[i] = old_c;
+	}
+
+	r = mkdir(path);
+	return r == 0 ? 0 : -1;
 }
 
 /**
  * 创建目录
  */
-int main_file_mkdirs(const char *str)
+int mainFileMkdirs(const char *str)
 {
 	main_string path;
-	int r, created;
-	char *p;
-	char c;
+	int r;
 
-	main_string_initial(&path);
-	main_string_assign(&path, str);
+	mainStringInitial(&path);
+	mainStringAssign(&path, str);
 
-	r = 0;
-	p = path.data;
-	created = 0;
-	while (*p != E_CHAR && r == 0)
-	{
-		if (*p == MAIN_FILE_SEP_UNIX_CHAR || *p == MAIN_FILE_SEP_WINS_CHAR)
-		{
-			c = *p;
-			*p = E_CHAR;
-			if (main_file_is_directory(path.data) != 0)
-			{
-				if (mkdir(path.data) == 0)
-				{
-					created = 1;
-				}
-				else
-				{
-					r = -1;
-				}
-			}
+	r = mainFileMkdirsImpl(path.data, path.n);
 
-			*p = c;
-		}
-		++p;
-	}
-
-	if (r == 0)
-	{
-		if (main_file_is_directory(path.data) != 0)
-		{
-			if (mkdir(path.data) == 0)
-			{
-				created = 1;
-			}
-			else
-			{
-				r = -1;
-			}
-		}
-	}
-
-	if (r == 0 && !created)
-	{
-		r = 1;
-	}
-
-	main_string_release(&path);
+	mainStringRelease(&path);
 	return r;
 }
 
 /**
  * 为文件准备目录
  */
-int main_file_check_create_parent_dir(const char *str)
+int mainFileCheckCreateParentDir(const char *str)
 {
-	main_string path;
-	char *iter;
-	char *last;
-	char c;
+	main_string *text;
 	int r;
+	int i;
 
-	main_string_initial(&path);
-	main_string_assign(&path, str);
-	for (iter = path.data, last = NULL; *iter != E_CHAR; ++iter)
-	{
-		if (*iter == MAIN_FILE_SEP_UNIX_CHAR || *iter == MAIN_FILE_SEP_WINS_CHAR)
-		{
-			last = iter;
-		}
+	text = mainStringNew();
+	mainStringAssign(text, str);
+	
+	r = 0;
+	if ((i = mainFileParentDirectoryPosition(text->data, text->n)) >= 0) {
+		char c = text->data[i];
+		text->data[i] = '\0';
+		mainFileMkdirs(text->data);
+		r = mainFileIsDirectory(text->data);
+		text->data[i] = c;
 	}
 
-	if (last != NULL)
-	{
-		c = *last;
-		*last = E_CHAR;
-		r = main_file_mkdirs(path.data);
-		if (r == 0 || r == 1)
-		{
-			r = 0;
-		}
-		else
-		{
-			r = -1;
-		}
-		*last = c;
-	}
-	else
-	{
-		r = 0;
-	}
+	mainStringDelete(text);
+	text = NULL;
 
-	main_string_release(&path);
 	return r;
 }
